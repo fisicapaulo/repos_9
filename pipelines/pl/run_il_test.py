@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from core.cones.pl_operator import compute_coherent_operator_G, generate_A_with_L_scale
 from sigma_delta.metrics.delta_coherent import delta_coherent
 import time
 import numpy as np
 import pandas as pd
 
-# --- Par‚metros ---
+# --- Par√¢metros ---
 N_DIM = 2000
 M_DIM = 500
 R_RANK = 400
@@ -13,7 +17,7 @@ DELTA_DIM = 0.1
 L_RUNS = [1.0, 1e6, 1e12] # Reescalas L para testar independencia
 
 results = []
-print(f"Iniciando Teste I_L para PL (n={{N_DIM}}, m={{M_DIM}})...")
+print(f"Iniciando Teste I_L para PL (n={N_DIM}, m={M_DIM})...")
 
 for L_scale in L_RUNS:
     A = generate_A_with_L_scale(N_DIM, M_DIM, scale_L=L_scale, seed=2025)
@@ -31,9 +35,10 @@ for L_scale in L_RUNS:
         "kappa_coh": metrics['kappa_coh']
     })
     
-    print(f"  {{results[-1]['Run']}}: T={{T_simulated:.2f}}ms, delta={{metrics['value']:.4f}}")
+    # Linha A (Corrigida)
+    print("  {}: T={:.2f}ms, delta={:.4f}".format(results[-1]['Run'], T_simulated, metrics['value']))
 
-# --- C·lculo do Õndice I_L (Medindo a variaÁ„o) ---
+# --- C√°lculo do √çndice I_L (Medindo a varia√ß√£o) ---
 df = pd.DataFrame(results)
 
 T_mean = df['T'].mean()
@@ -44,26 +49,27 @@ I_L_delta = df['delta_bar'].apply(lambda d: abs(d - D_mean)).max() / D_mean if D
 
 I_L_total = I_L_T + I_L_delta
 
-# --- GeraÁ„o da Tabela LaTeX (Final) ---
+# --- Gera√ß√£o da Tabela LaTeX (Final) ---
 print("\n" + "="*70)
-print(f"RELAT”RIO DE CERTIFICA«√O: INDEPEND NCIA ARITM…TICA (I_L = {{I_L_total:.4f}})")
+# Linha B (Corrigida)
+print("RELAT√ìRIO DE CERTIFICA√á√ÉO: INDEPEND√äNCIA ARITM√âTICA (I_L = {:.4f})".format(I_L_total))
 print("="*70)
 
-# Estrutura final da tabela para o artigo
 print("\\begin{table}[H]")
 print("\\centering")
 print("\\small")
-print("\\caption{PL genÈrico: custo e invariantes sob reescalas aritmÈticas (n=2000, m=500).}")
+print("\\caption{PL gen√©rico: custo e invariantes sob reescalas aritm√©ticas (n=2000, m=500).}")
 print("\\begin{tabular}{lrrrr}")
 print("\\toprule")
-print("\\textbf{Run} & $T$ (ms) & $\\overline{{\\delta}}$ & $\\kappa_{\\mathrm{{coh}}}}$ & $\\mathcal{I}_L}$ \\")
+print("\\textbf{Run} & $T$ (ms) & $\\overline{\\delta}$ & $\\kappa_{\\mathrm{coh}}$ & $\\mathcal{I}_L$ \\\\")
 print("\\midrule")
 
 for i, r in df.iterrows():
-    I_L_display = f"{{I_L_total:.4f}}" if i == 0 else "" 
-    print(f"{{r['Run']}} & {{r['T']:.1f}} & {{r['delta_bar']:.4f}} & {{r['kappa_coh']:.1f}} & {{I_L_display}} \\")
+    I_L_display = "{:.4f}".format(I_L_total) if i == 0 else "" 
+    # Linha C (Corrigida)
+    print("{Run} & {T:.1f} & {delta_bar:.4f} & {kappa_coh:.1f} & {I_L_display} \\\\".format(Run=r['Run'], T=r['T'], delta_bar=r['delta_bar'], kappa_coh=r['kappa_coh'], I_L_display=I_L_display))
 
 print("\\bottomrule")
 print("\\end{tabular}")
 print("\\end{table}")
-print("\n* Nota: O Ìndice $\\mathcal{I}_L$ prÛximo de zero prova a independÍncia de L.")
+print("\n* Nota: O √≠ndice $\\mathcal{I}_L$ pr√≥ximo de zero prova a independ√™ncia de L.")
