@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 from core.cones.pl_operator import compute_coherent_operator_G, generate_A_with_L_scale
 from sigma_delta.metrics.delta_coherent import delta_coherent
 import time
